@@ -1,0 +1,6 @@
+{
+  "appId": "tech.quitty.qr",
+  "appName": "android",
+  "webDir": "public",
+  "bundledWebRuntime": false
+}

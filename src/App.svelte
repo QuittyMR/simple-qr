@@ -1,52 +1,53 @@
 <script>
-    import {tick, onDestroy} from 'svelte'
-    import QrScanner from 'qr-scanner'
-    import Snackbar, { Label } from '@smui/snackbar';
+    import { tick, onDestroy } from "svelte";
+    import QrScanner from "qr-scanner";
 
-    let isStarted = false
-    let videoElement
-    let qrScanner
-    let foundElement
-    let resultElement
+    let isStarted = false;
+    let videoElement;
+    let qrScanner;
+    let foundResult;
+    let resultMessage;
 
     function decodeQR(result) {
-        foundElement = result.data
-        resultElement.open()
+        if (foundResult) {
+            foundResult = undefined;
+        } else {
+            foundResult = result.data;
+        }
     }
 
     async function activateCamera() {
-        isStarted = true
+        isStarted = true;
         await tick();
         qrScanner = new QrScanner(videoElement, decodeQR, {
             highlightCodeOutline: true,
             highlightScanRegion: true,
             returnDetailedScanResult: true,
         });
-        await qrScanner.start()
+        await qrScanner.start();
     }
 
     function stopCamera() {
-        isStarted = false
-        qrScanner.stop()
-        qrScanner.destroy()
+        isStarted = false;
+        qrScanner.stop();
+        qrScanner.destroy();
     }
 
     function closeResult() {
-        foundElement = false
+        foundResult = undefined;
     }
 
     onDestroy(() => {
-            stopCamera()
-        }
-    )
-    activateCamera()
+        stopCamera();
+    });
+    activateCamera();
 </script>
 
 <svelte:head>
     <style>
         .scan-region-highlight {
             border-radius: 30px;
-            outline: rgba(0, 0, 0, .25) solid 50vmax;
+            outline: rgba(0, 0, 0, 0.25) solid 50vmax;
         }
 
         .scan-region-highlight-svg {
@@ -54,37 +55,40 @@
         }
 
         .code-outline-highlight {
-            stroke: rgba(255, 255, 255, .5) !important;
+            stroke: rgba(255, 255, 255, 0.5) !important;
             stroke-width: 15 !important;
             stroke-dasharray: none !important;
         }
     </style>
 </svelte:head>
 <div>
-    <div id="options-container">
+    <div id="options-container" class="flex flex-col">
         <label>
-            <input type="checkbox"/>
+            <input type="checkbox" />
             Auto-follow results
         </label>
+        <button on:click={() => { decodeQR({ data: "This is a message" })}}
+            >trigger result</button
+        >
     </div>
     {#if isStarted}
         <div id="video-container">
             <video bind:this={videoElement}>
-                <track kind="captions">
+                <track kind="captions" />
             </video>
         </div>
     {/if}
 </div>
-<Snackbar bind:this={resultElement}>
-    <Label>{foundElement}</Label>
-</Snackbar>
+    <div class="bottom-0 absolute duration-500 transition-all {foundResult ? "opacity-100" : "opacity-0"}" >
+        {foundResult ? foundResult : ''}
+    </div>
 
 <style>
     #options-container {
         position: absolute;
         z-index: 100;
         background-size: max-content;
-        background-color: rgba(255, 255, 255, .5);
+        background-color: rgba(255, 255, 255, 0.5);
     }
 
     video {
@@ -97,9 +101,9 @@
 
     #video-container {
         position: absolute;
-        width:100vw;
-        height:100vh;
-        overflow:hidden;
+        width: 100vw;
+        height: 99vh;
+        overflow: hidden;
     }
 
     /* #result {

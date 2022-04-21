@@ -1,14 +1,17 @@
 <script>
     import {tick, onDestroy} from 'svelte'
     import QrScanner from 'qr-scanner'
+    import Snackbar, { Label } from '@smui/snackbar';
 
     let isStarted = false
     let videoElement
     let qrScanner
     let foundElement
+    let resultElement
 
     function decodeQR(result) {
         foundElement = result.data
+        resultElement.open()
     }
 
     async function activateCamera() {
@@ -66,16 +69,15 @@
     </div>
     {#if isStarted}
         <div id="video-container">
-            <video bind:this={videoElement}></video>
+            <video bind:this={videoElement}>
+                <track kind="captions">
+            </video>
         </div>
     {/if}
 </div>
-{#if foundElement}
-    <div id="result">
-        <p>{foundElement}</p>
-        <button class="modal-button" on:click={closeResult}>close</button>
-    </div>
-{/if}
+<Snackbar bind:this={resultElement}>
+    <Label>{foundElement}</Label>
+</Snackbar>
 
 <style>
     #options-container {
@@ -100,7 +102,7 @@
         overflow:hidden;
     }
 
-    #result {
+    /* #result {
         position: absolute;
         width: 100vw;
         height: max-content;
@@ -110,5 +112,5 @@
         border-radius: 20px;
         top: 0;
         left: 0;
-    }
+    } */
 </style>
